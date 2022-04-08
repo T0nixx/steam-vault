@@ -5,7 +5,7 @@ import queryString from "query-string";
 const STEAM_API_URL = "https://api.steampowered.com/";
 
 export default (app: express.Express): void => {
-  app.get("/api/get_user_profile/:steam_id", async (req, res) => {
+  app.get("/api/get_steam_profile/:steam_id", async (req, res) => {
     if (!req.params.steam_id) {
       res.redirect("/");
       return;
@@ -18,13 +18,13 @@ export default (app: express.Express): void => {
       steamids: steam_id,
     });
 
-    const response = await axios.get<SteamProfile>(url + query);
+    const response = await axios.get<SteamProfileResponse>(url + query);
     const { steamid, avatarfull, personaname } = response.data.response.players[0];
     res.json({ steam_id: steamid, avatar: avatarfull, persona_name: personaname });
   });
 };
 
-interface SteamProfile {
+interface SteamProfileResponse {
   response: {
     players: {
       steamid: string;

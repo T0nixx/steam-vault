@@ -11,7 +11,7 @@ declare module "passport-steam" {
   interface SteamStrategyOptionBase {
     providerURL?: strting;
     profile?: boolean;
-    apiKey: string;
+    apiKey?: string;
     realm: string;
     returnURL: string;
   }
