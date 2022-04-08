@@ -22,6 +22,30 @@ export default (app: express.Express): void => {
     const { steamid, avatarfull, personaname } = response.data.response.players[0];
     res.json({ steam_id: steamid, avatar: avatarfull, persona_name: personaname });
   });
+
+  app.get("/api/get_owned_games/:steam_id", async (req, res) => {
+    if (!req.params.steam_id) {
+      res.redirect("/");
+      return;
+    }
+
+    const steamid = req.params.steam_id;
+    const url = `${STEAM_API_URL}IPlayerService/GetOwnedGames/v1/?`;
+    const query = queryString.stringify({
+      key: process.env.STEAM_API_KEY,
+      steamid,
+      include_appinfo: true,
+      include_played_free_games: true,
+    });
+    const response = await axios.get<GetOwnedGamesResponse>(url + query);
+    res.json({
+      games: response.data.response.games.map(({ appid, name, playtime_forever }) => ({
+        app_id: appid,
+        name,
+        playtime: playtime_forever,
+      })),
+    });
+  });
 };
 
 interface SteamProfileResponse {
@@ -33,6 +57,16 @@ interface SteamProfileResponse {
       avatarmedium: string;
       avatarfull: string;
       personaname: string;
+    }[];
+  };
+}
+
+interface GetOwnedGamesResponse {
+  response: {
+    games: {
+      appid: string;
+      name: string;
+      playtime_forever: number;
     }[];
   };
 }
